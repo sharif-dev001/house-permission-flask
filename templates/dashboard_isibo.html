@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Isibo Leader Dashboard</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+        }
+
+        /* Header */
+        .header {
+            background: #10b981;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .header h2 {
+            margin: 0;
+        }
+
+        .header p {
+            margin: 5px 0 0;
+            font-size: 14px;
+        }
+
+        /* Container */
+        .container {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        /* Card */
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .card p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Button */
+        .btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 15px;
+            background: #10b981;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .btn:hover {
+            background: #059669;
+        }
+
+        /* Logout */
+        .logout {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .logout a {
+            color: #ef4444;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <h2>Isibo Leader Dashboard</h2>
+    <p>Welcome {{ username }}</p>
+</div>
+
+<div class="container">
+
+    <!-- MAIN ACTION CARD -->
+    <div class="card">
+        <h3>Pending House Requests</h3>
+        <p>View, approve, or reject citizen construction requests.</p>
+
+        <!-- THIS IS THE LINK YOU ASKED ABOUT -->
+        <a href="{{ url_for('auth.isibo_requests') }}" class="btn">
+            View Pending Requests
+        </a>
+    </div>
+
+    <div class="card">
+        <h3>Statistics</h3>
+        <p>Track number of requests and decisions.</p>
+        <a href="#" class="btn">View</a>
+    </div>
+
+</div>
+
+<div class="logout">
+    <a href="{{ url_for('auth.logout') }}">Logout</a>
+</div>
+
+</body>
+</html>

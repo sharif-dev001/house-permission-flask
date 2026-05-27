@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sector Leader Dashboard</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1d4ed8, #2563eb);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .header h2 {
+            margin: 0;
+        }
+
+        /* Container */
+        .container {
+            padding: 25px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        /* Card */
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .info {
+            margin: 8px 0;
+            color: #333;
+        }
+
+        .label {
+            font-weight: bold;
+            color: #111;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+            width: 48%;
+        }
+
+        .approve {
+            background: #10b981;
+            color: white;
+        }
+
+        .reject {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        /* PDF button */
+        .pdf {
+            display: block;
+            margin-top: 12px;
+            padding: 10px;
+            text-align: center;
+            background: #f59e0b;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        /* Empty */
+        .empty {
+            text-align: center;
+            margin-top: 60px;
+            color: #666;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <h2>Sector Leader Dashboard</h2>
+    <p>Final Approval of House Construction Requests</p>
+</div>
+
+{% if requests %}
+
+<div class="container">
+
+    {% for r in requests %}
+    <div class="card">
+
+        <p class="info"><span class="label">Request ID:</span> {{ r[0] }}</p>
+        <p class="info"><span class="label">User ID:</span> {{ r[1] }}</p>
+        <p class="info"><span class="label">Location:</span> {{ r[2] }}</p>
+        <p class="info"><span class="label">Description:</span> {{ r[3] }}</p>
+        <p class="info"><span class="label">Status:</span> {{ r[4] }}</p>
+
+        <!-- APPROVE -->
+        <form method="POST"
+              action="{{ url_for('auth.sector_action', request_id=r[0], action='approve') }}">
+
+            <input type="text" name="reason" placeholder="Approval reason" required>
+
+            <div class="btn-group">
+                <button type="submit" class="btn approve">Approve</button>
+            </div>
+        </form>
+
+        <!-- REJECT -->
+        <form method="POST"
+              action="{{ url_for('auth.sector_action', request_id=r[0], action='reject') }}">
+
+            <input type="text" name="reason" placeholder="Rejection reason" required>
+
+            <div class="btn-group">
+                <button type="submit" class="btn reject">Reject</button>
+            </div>
+        </form>
+
+        <!-- PDF DOWNLOAD (ONLY AFTER APPROVAL) -->
+        {% if r[4] == 'approved' %}
+        <a class="pdf"
+           href="{{ url_for('auth.download_permission', request_id=r[0]) }}">
+            Download Permission PDF
+        </a>
+        {% endif %}
+
+    </div>
+    {% endfor %}
+
+</div>
+
+{% else %}
+
+<div class="empty">
+    <h3>No pending sector requests</h3>
+</div>
+
+{% endif %}
+
+</body>
+</html>

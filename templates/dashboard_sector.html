@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sector Dashboard</title>
+
+    <style>
+        body { font-family: Arial; background: #f9fafb; margin: 0; }
+        .header { background: #ef4444; color: white; padding: 20px; text-align: center; }
+        .container { padding: 30px; }
+        .card { background: white; padding: 20px; border-radius: 12px; }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <h2>Sector Leader Dashboard</h2>
+    <p>Welcome {{ username }}</p>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h3>Final Approvals</h3>
+        <p>Approve or reject final construction requests</p>
+    </div>
+
+    <br>
+    <a href="{{ url_for('auth.logout') }}">Logout</a>
+</div>
+
+</body>
+</html>

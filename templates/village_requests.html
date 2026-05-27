@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Village Leader Requests</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .header h2 {
+            margin: 0;
+        }
+
+        /* Container */
+        .container {
+            padding: 25px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        /* Card */
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .info {
+            margin: 8px 0;
+            color: #333;
+        }
+
+        .label {
+            font-weight: bold;
+            color: #111;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            resize: none;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 48%;
+            font-weight: bold;
+        }
+
+        .approve {
+            background: #10b981;
+            color: white;
+        }
+
+        .reject {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        /* Empty state */
+        .empty {
+            text-align: center;
+            color: #666;
+            margin-top: 50px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <h2>Village Leader Dashboard</h2>
+    <p>Pending Requests from Isibo Level</p>
+</div>
+
+{% if requests %}
+
+<div class="container">
+
+    {% for r in requests %}
+    <div class="card">
+
+        <p class="info"><span class="label">Request ID:</span> {{ r[0] }}</p>
+        <p class="info"><span class="label">User ID:</span> {{ r[1] }}</p>
+        <p class="info"><span class="label">Location:</span> {{ r[2] }}</p>
+        <p class="info"><span class="label">Description:</span> {{ r[3] }}</p>
+        <p class="info"><span class="label">Status:</span> {{ r[4] }}</p>
+
+        <!-- APPROVE -->
+        <form method="POST"
+              action="{{ url_for('auth.village_action', request_id=r[0], action='approve') }}">
+
+            <textarea name="reason" placeholder="Write approval reason..." required></textarea>
+
+            <div class="btn-group">
+                <button type="submit" class="btn approve">Approve</button>
+            </div>
+        </form>
+
+        <!-- REJECT -->
+        <form method="POST"
+              action="{{ url_for('auth.village_action', request_id=r[0], action='reject') }}">
+
+            <textarea name="reason" placeholder="Write rejection reason..." required></textarea>
+
+            <div class="btn-group">
+                <button type="submit" class="btn reject">Reject</button>
+            </div>
+        </form>
+
+    </div>
+    {% endfor %}
+
+</div>
+
+{% else %}
+
+<div class="empty">
+    <h3>No pending village requests found</h3>
+</div>
+
+{% endif %}
+
+</body>
+</html>

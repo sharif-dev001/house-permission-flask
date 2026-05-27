@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Requests</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f3f4f6;
+            margin: 0;
+        }
+
+        .header {
+            background: #1f2937;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .status {
+            font-weight: bold;
+        }
+
+        .approved {
+            color: green;
+        }
+
+        .pending {
+            color: orange;
+        }
+
+        .btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px;
+            background: #f59e0b;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <h2>My House Requests</h2>
+</div>
+
+<div class="container">
+
+{% for r in requests %}
+    <div class="card">
+
+        <p><b>Location:</b> {{ r[2] }}</p>
+        <p><b>Description:</b> {{ r[3] }}</p>
+
+        <p class="status">
+            Status:
+            {% if r[4] == 'approved' %}
+                <span class="approved">Approved</span>
+            {% else %}
+                <span class="pending">{{ r[4] }}</span>
+            {% endif %}
+        </p>
+
+        <!-- DOWNLOAD ONLY IF APPROVED -->
+        {% if r[4] == 'approved' %}
+        <a class="btn"
+           href="{{ url_for('auth.download_permission', request_id=r[0]) }}">
+            Download Permission PDF
+        </a>
+        {% endif %}
+
+    </div>
+{% endfor %}
+
+</div>
+
+</body>
+</html>
