@@ -1,31 +1,105 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Sector Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sector Leader Dashboard</title>
 
     <style>
-        body { font-family: Arial; background: #f9fafb; margin: 0; }
-        .header { background: #ef4444; color: white; padding: 20px; text-align: center; }
-        .container { padding: 30px; }
-        .card { background: white; padding: 20px; border-radius: 12px; }
+
+        body{
+            margin:0;
+            font-family:Arial, sans-serif;
+            background:#eef2ff;
+        }
+
+        .header{
+            background:#312e81;
+            color:white;
+            padding:20px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        }
+
+        .logout{
+            background:#ef4444;
+            color:white;
+            text-decoration:none;
+            padding:10px 15px;
+            border-radius:6px;
+        }
+
+        .container{
+            padding:30px;
+        }
+
+        .card{
+            background:white;
+            padding:25px;
+            border-radius:12px;
+            box-shadow:0 4px 12px rgba(0,0,0,0.08);
+            max-width:600px;
+        }
+
+        h2{
+            margin-top:0;
+            color:#312e81;
+        }
+
+        p{
+            color:#374151;
+            margin-bottom:25px;
+        }
+
+        .btn{
+            display:inline-block;
+            background:#2563eb;
+            color:white;
+            text-decoration:none;
+            padding:14px 20px;
+            border-radius:8px;
+            font-weight:bold;
+        }
+
+        .btn:hover{
+            background:#1d4ed8;
+        }
+
     </style>
+
 </head>
 
 <body>
 
 <div class="header">
+
     <h2>Sector Leader Dashboard</h2>
-    <p>Welcome {{ username }}</p>
+
+    <a class="logout" href="/logout">
+        Logout
+    </a>
+
 </div>
 
 <div class="container">
+
     <div class="card">
-        <h3>Final Approvals</h3>
-        <p>Approve or reject final construction requests</p>
+
+        <h2>
+            Welcome {{ username }}
+        </h2>
+
+        <p>
+            Final Approvals for House Construction Requests
+        </p>
+
+        <a class="btn" href="/sector/requests">
+            Open Final Approval Requests
+        </a>
+
     </div>
 
-    <br>
-    <a href="{{ url_for('auth.logout') }}">Logout</a>
 </div>
 
 </body>

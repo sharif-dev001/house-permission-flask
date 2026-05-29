@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+        }
+
+        /* TOP BAR */
+        .topbar {
+            background: #1f2937;
+            color: white;
+            padding: 15px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .topbar h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .logout {
+            background: #ef4444;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .logout:hover {
+            background: #dc2626;
+        }
+
+        /* CONTAINER */
+        .container {
+            padding: 25px;
+        }
+
+        /* CARDS */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h3 {
+            margin: 0;
+            color: #374151;
+        }
+
+        .card p {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        /* BUTTON GRID */
+        .buttons {
+            margin-top: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+        }
+
+        .btn {
+            background: #2563eb;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            background: #1d4ed8;
+        }
+
+        .btn.green {
+            background: #16a34a;
+        }
+
+        .btn.green:hover {
+            background: #15803d;
+        }
+
+        .btn.orange {
+            background: #f97316;
+        }
+
+        .btn.orange:hover {
+            background: #ea580c;
+        }
+
+        .btn.red {
+            background: #ef4444;
+        }
+
+        .btn.red:hover {
+            background: #dc2626;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+        <h2>Admin Dashboard</h2>
+        <a class="logout" href="/logout">Logout</a>
+    </div>
+
+    <!-- MAIN -->
+    <div class="container">
+
+        <!-- CARDS -->
+        <div class="cards">
+
+            <div class="card">
+                <h3>System Users</h3>
+                <p>Manage all registered users and leaders</p>
+            </div>
+
+            <div class="card">
+                <h3>Requests</h3>
+                <p>Monitor house permission requests</p>
+            </div>
+
+            <div class="card">
+                <h3>Approvals</h3>
+                <p>Track approval flow (Isibo → Sector)</p>
+            </div>
+
+            <div class="card">
+                <h3>System Status</h3>
+                <p>Live system running correctly</p>
+            </div>
+
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <div class="buttons">
+
+            <a href="/admin/users" class="btn">
+                Manage Users
+            </a>
+
+            <a href="/admin/create-user" class="btn green">
+                Create User / Leader
+            </a>
+
+            <a href="/isibo/requests" class="btn orange">
+                Isibo Requests
+            </a>
+
+            <a href="/village/requests" class="btn orange">
+                Village Requests
+            </a>
+
+            <a href="/sector/requests" class="btn red">
+                Sector Requests
+            </a>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

@@ -1,8 +1,22 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, send_file
+from flask import Blueprint
+from flask import render_template
+from flask import request
+from flask import redirect
+from flask import url_for
+from flask import session
+from flask import send_file
+
 from extensions import db
 from models import User, Request, Approval
+
 import io
 from reportlab.pdfgen import canvas
+
+from werkzeug.security import (
+    generate_password_hash,
+    check_password_hash
+)
+
 
 auth = Blueprint('auth', __name__)
 
@@ -12,14 +26,26 @@ auth = Blueprint('auth', __name__)
 # -------------------------
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
+
     if request.method == 'POST':
 
         username = request.form['username']
         password = request.form['password']
 
+        existing_user = User.query.filter_by(
+            username=username
+        ).first()
+
+        if existing_user:
+            return "Username already exists"
+
+        hashed_password = generate_password_hash(
+            password
+        )
+
         new_user = User(
             username=username,
-            password=password,
+            password=hashed_password,
             role='user'
         )
 
@@ -43,16 +69,34 @@ def login():
         password = request.form['password']
 
         user = User.query.filter_by(
-            username=username,
-            password=password
+            username=username
         ).first()
 
         if user:
-            session['user_id'] = user.id
-            session['username'] = user.username
-            session['role'] = user.role
 
-            return redirect(url_for('auth.dashboard'))
+            # CHECK ACTIVE ACCOUNT
+            if hasattr(user, 'is_active'):
+                if not user.is_active:
+                    return "Account disabled"
+
+            # CHECK PASSWORD
+            if check_password_hash(
+                user.password,
+                password
+            ):
+
+                session['user_id'] = user.id
+                session['username'] = user.username
+                session['role'] = user.role
+
+                # ADMIN
+                if user.role == 'admin':
+                    return redirect('/admin/dashboard')
+
+                # OTHER USERS
+                return redirect(
+                    url_for('auth.dashboard')
+                )
 
         return "Invalid username or password"
 
@@ -71,17 +115,37 @@ def dashboard():
     username = session.get('username')
     role = session.get('role')
 
+    # USER
     if role == 'user':
-        return render_template('dashboard_user.html', username=username)
+        return render_template(
+            'dashboard_user.html',
+            username=username
+        )
 
+    # ISIBO
     elif role == 'isibo':
-        return render_template('dashboard_isibo.html', username=username)
+        return render_template(
+            'dashboard_isibo.html',
+            username=username
+        )
 
+    # VILLAGE
     elif role == 'village':
-        return render_template('dashboard_village.html', username=username)
+        return render_template(
+            'dashboard_village.html',
+            username=username
+        )
 
+    # SECTOR
     elif role == 'sector':
-        return render_template('dashboard_sector.html', username=username)
+        return render_template(
+            'dashboard_sector.html',
+            username=username
+        )
+
+    # ADMIN
+    elif role == 'admin':
+        return redirect('/admin/dashboard')
 
     return "Unknown role"
 
@@ -97,9 +161,14 @@ def my_requests():
 
     user_id = session['user_id']
 
-    data = Request.query.filter_by(user_id=user_id).all()
+    data = Request.query.filter_by(
+        user_id=user_id
+    ).all()
 
-    return render_template('my_requests.html', requests=data)
+    return render_template(
+        'my_requests.html',
+        requests=data
+    )
 
 
 # -------------------------
@@ -122,7 +191,9 @@ def request_house():
         db.session.add(new_request)
         db.session.commit()
 
-        return "Request submitted successfully!"
+        return redirect(
+            url_for('auth.my_requests')
+        )
 
     return render_template('request_form.html')
 
@@ -136,12 +207,23 @@ def isibo_requests():
     if session.get('role') != 'isibo':
         return redirect(url_for('auth.login'))
 
-    data = Request.query.filter_by(status='pending_isibo').all()
+    data = Request.query.filter_by(
+        status='pending_isibo'
+    ).all()
 
-    return render_template('isibo_requests.html', requests=data)
+    return render_template(
+        'isibo_requests.html',
+        requests=data
+    )
 
 
-@auth.route('/isibo/action/<int:request_id>/<string:action>', methods=['POST'])
+# -------------------------
+# ISIBO ACTION
+# -------------------------
+@auth.route(
+    '/isibo/action/<int:request_id>/<string:action>',
+    methods=['POST']
+)
 def isibo_action(request_id, action):
 
     if session.get('role') != 'isibo':
@@ -151,7 +233,13 @@ def isibo_action(request_id, action):
 
     if req:
 
-        req.status = 'pending_village' if action == 'approve' else 'rejected'
+        # APPROVE
+        if action == 'approve':
+            req.status = 'pending_village'
+
+        # REJECT
+        else:
+            req.status = 'rejected'
 
         approval = Approval(
             request_id=request_id,
@@ -164,7 +252,9 @@ def isibo_action(request_id, action):
         db.session.add(approval)
         db.session.commit()
 
-    return redirect(url_for('auth.isibo_requests'))
+    return redirect(
+        url_for('auth.isibo_requests')
+    )
 
 
 # -------------------------
@@ -176,12 +266,23 @@ def village_requests():
     if session.get('role') != 'village':
         return redirect(url_for('auth.login'))
 
-    data = Request.query.filter_by(status='pending_village').all()
+    data = Request.query.filter_by(
+        status='pending_village'
+    ).all()
 
-    return render_template('village_requests.html', requests=data)
+    return render_template(
+        'village_requests.html',
+        requests=data
+    )
 
 
-@auth.route('/village/action/<int:request_id>/<string:action>', methods=['POST'])
+# -------------------------
+# VILLAGE ACTION
+# -------------------------
+@auth.route(
+    '/village/action/<int:request_id>/<string:action>',
+    methods=['POST']
+)
 def village_action(request_id, action):
 
     if session.get('role') != 'village':
@@ -191,7 +292,13 @@ def village_action(request_id, action):
 
     if req:
 
-        req.status = 'pending_sector' if action == 'approve' else 'rejected'
+        # APPROVE
+        if action == 'approve':
+            req.status = 'pending_sector'
+
+        # REJECT
+        else:
+            req.status = 'rejected'
 
         approval = Approval(
             request_id=request_id,
@@ -204,7 +311,9 @@ def village_action(request_id, action):
         db.session.add(approval)
         db.session.commit()
 
-    return redirect(url_for('auth.village_requests'))
+    return redirect(
+        url_for('auth.village_requests')
+    )
 
 
 # -------------------------
@@ -216,12 +325,27 @@ def sector_requests():
     if session.get('role') != 'sector':
         return redirect(url_for('auth.login'))
 
-    data = Request.query.filter_by(status='pending_sector').all()
+    # SHOW PENDING + APPROVED
+    data = Request.query.filter(
+        Request.status.in_([
+            'pending_sector',
+            'approved'
+        ])
+    ).all()
 
-    return render_template('sector_requests.html', requests=data)
+    return render_template(
+        'sector_requests.html',
+        requests=data
+    )
 
 
-@auth.route('/sector/action/<int:request_id>/<string:action>', methods=['POST'])
+# -------------------------
+# SECTOR ACTION
+# -------------------------
+@auth.route(
+    '/sector/action/<int:request_id>/<string:action>',
+    methods=['POST']
+)
 def sector_action(request_id, action):
 
     if session.get('role') != 'sector':
@@ -231,7 +355,13 @@ def sector_action(request_id, action):
 
     if req:
 
-        req.status = 'approved' if action == 'approve' else 'rejected'
+        # APPROVE
+        if action == 'approve':
+            req.status = 'approved'
+
+        # REJECT
+        else:
+            req.status = 'rejected'
 
         approval = Approval(
             request_id=request_id,
@@ -244,11 +374,13 @@ def sector_action(request_id, action):
         db.session.add(approval)
         db.session.commit()
 
-    return redirect(url_for('auth.sector_requests'))
+    return redirect(
+        url_for('auth.sector_requests')
+    )
 
 
 # -------------------------
-# PDF DOWNLOAD
+# DOWNLOAD PDF
 # -------------------------
 @auth.route('/download/<int:request_id>')
 def download_permission(request_id):
@@ -261,23 +393,64 @@ def download_permission(request_id):
     if not req:
         return "Request not found"
 
+    # ONLY ALLOW APPROVED REQUESTS
+    if req.status != 'approved':
+        return "Permission not approved yet"
+
     buffer = io.BytesIO()
 
     pdf = canvas.Canvas(buffer)
 
+    pdf.setFont("Helvetica-Bold", 16)
+    pdf.drawString(
+        120,
+        800,
+        "HOUSE CONSTRUCTION PERMISSION"
+    )
+
     pdf.setFont("Helvetica", 12)
 
-    pdf.drawString(100, 800, "OFFICIAL HOUSE CONSTRUCTION PERMISSION")
+    pdf.drawString(
+        100,
+        750,
+        f"Request ID: {req.id}"
+    )
 
-    pdf.drawString(100, 760, f"Request ID: {req.id}")
+    pdf.drawString(
+        100,
+        720,
+        f"User ID: {req.user_id}"
+    )
 
-    pdf.drawString(100, 740, f"User ID: {req.user_id}")
+    pdf.drawString(
+        100,
+        690,
+        f"Location: {req.location}"
+    )
 
-    pdf.drawString(100, 720, f"Location: {req.location}")
+    pdf.drawString(
+        100,
+        660,
+        f"Description: {req.description}"
+    )
 
-    pdf.drawString(100, 700, f"Description: {req.description}")
+    pdf.drawString(
+        100,
+        630,
+        "Final Status: APPROVED"
+    )
 
-    pdf.drawString(100, 680, "Status: APPROVED BY SECTOR")
+    pdf.drawString(
+        100,
+        580,
+        "Approved By Sector Leader"
+    )
+
+    pdf.drawString(
+        100,
+        540,
+        "Official Government Permission"
+    )
 
     pdf.save()
 
@@ -286,7 +459,7 @@ def download_permission(request_id):
     return send_file(
         buffer,
         as_attachment=True,
-        download_name="permission.pdf"
+        download_name=f"permission_{req.id}.pdf"
     )
 
 
@@ -298,4 +471,6 @@ def logout():
 
     session.clear()
 
-    return redirect(url_for('auth.login'))
+    return redirect(
+        url_for('auth.login')
+    )
